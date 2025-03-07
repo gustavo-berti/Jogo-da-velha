@@ -1,19 +1,30 @@
 import { useState } from "react"
 import './Board.css'
+import { useEffect } from "react";
 
 function Square({ value, onSquareClick }) {
-    return (<button className='Square' onClick={onSquareClick}>{value}</button>);
+    return (<button className='square' onClick={onSquareClick}>{value}</button>);
 }
 
 export default function Board() {
+    const [xWins, setXWins] = useState(0);
+    const [oWins, setOWins] = useState(0);
     const [isNextX, setIsNextX] = useState(true);
     const [squares, setSquares] = useState(Array(9).fill(null));
+    const [winner, setWinner] = useState(null);
+    const [click, setClick] = useState(0);
+
+    function reset() {
+        setSquares(Array(9).fill(null));
+        setIsNextX(true);
+        setWinner(null);
+        setClick(0);
+    }
 
     function handleClick(i) {
         if (squares[i] || calculateWinner(squares))
             return;
         const nextSquares = squares.slice();
-        console.log(isNextX);
         if (isNextX) {
             nextSquares[i] = "X";
         } else {
@@ -21,19 +32,34 @@ export default function Board() {
         }
         setIsNextX(!isNextX);
         setSquares(nextSquares);
+        setClick(click + 1);
     }
 
-    const winner = calculateWinner(squares);
+    const currentWinner = calculateWinner(squares);
+    useEffect(() => {
+        if (currentWinner) {
+            setWinner(currentWinner);
+            (currentWinner === "X") ? setXWins(xWins + 1) : setOWins(oWins + 1);
+        }
+    }, [currentWinner]);
+
     let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
+    let pontuation = "X Wins: " + xWins + " / O Wins: " + oWins;
+    if (currentWinner) {
+        status = 'Winner: ' + currentWinner;
     } else {
-      status = 'Next player: ' + (isNextX ? 'X' : 'O');
+        status = 'Next player: ' + (isNextX ? 'X' : 'O');
     }
+    if (click >= 9) {
+        status = 'Draw'
+    } 
 
     return (
         <>
-            <div className="status">{status}</div>
+            <div className="status">
+                {pontuation} <br />
+                {status}
+            </div>
             <div className='board-row'>
                 <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
                 <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -48,6 +74,9 @@ export default function Board() {
                 <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
                 <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
                 <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+            </div>
+            <div className="buttons">
+                <button className="game-button" onClick={reset}>Reset</button>
             </div>
         </>
     )

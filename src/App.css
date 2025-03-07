@@ -40,3 +40,19 @@
 .read-the-docs {
   color: #888;
 }
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 90vh;
+}
+
+.title {
+  margin-top: 0.1em;
+}
+
+.game-board {
+  margin-top: 4em;
+}
